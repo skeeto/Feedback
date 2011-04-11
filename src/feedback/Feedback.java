@@ -76,14 +76,14 @@ public class Feedback extends JPanel implements Runnable {
         g.clearRect(0, 0, WIDTH, HEIGHT);
 
         this.addMouseMotionListener(new MouseMotionListener() {
-                public void mouseDragged(MouseEvent e) {
-                    mouse(e.getX(), e.getY());
-                }
+            public void mouseDragged(MouseEvent e) {
+                mouse(e.getX(), e.getY());
+            }
 
-                public void mouseMoved(MouseEvent e) {
-                    mouse(e.getX(), e.getY());
-                }
-            });
+            public void mouseMoved(MouseEvent e) {
+                mouse(e.getX(), e.getY());
+            }
+        });
 
         initDisturb();
     }
@@ -175,7 +175,7 @@ public class Feedback extends JPanel implements Runnable {
     }
 
     public static ConvolveOp getGaussianBlurFilter(int radius,
-                                                   boolean horizontal) {
+            boolean horizontal) {
         if (radius < 1) {
             throw new IllegalArgumentException("Radius must be >= 1");
         }
@@ -192,7 +192,7 @@ public class Feedback extends JPanel implements Runnable {
             float distance = i * i;
             int index = i + radius;
             data[index] = (float) Math.exp(-distance / twoSigmaSquare)
-                / sigmaRoot;
+                          / sigmaRoot;
             total += data[index];
         }
 
