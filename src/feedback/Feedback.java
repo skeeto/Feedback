@@ -1,5 +1,6 @@
 package feedback;
 
+import java.awt.image.RescaleOp;
 import java.util.Random;
 import java.util.ArrayList;
 
@@ -25,11 +26,13 @@ public class Feedback extends JPanel implements Runnable {
     public static int WIDTH = 640;
     public static int HEIGHT = 640;
     public static int SPEED = 100;
-    public static double ANGLE = 0.5;
+    public static double ANGLE = 2.5;
     public static int BLUR = 1;
+    public static int INIT_DISTURB = 50;
 
     private BufferedImage image;
     private ArrayList<BufferedImageOp> ops;
+    private RescaleOp rescale;   /* Display purpose only. */
     private Random rng;
 
     public static void main(final String[] args) {
@@ -48,22 +51,25 @@ public class Feedback extends JPanel implements Runnable {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setBackground(Color.BLACK);
 
+        rescale = new RescaleOp(1.5f, 0.0f, null);
+
         ops = new ArrayList<BufferedImageOp>();
-        AffineTransform rotate = new AffineTransform();
-        rotate.rotate(ANGLE, WIDTH / 2, HEIGHT / 2);
-        ops.add(new AffineTransformOp(rotate, AffineTransformOp.TYPE_BILINEAR));
+        AffineTransform affine = new AffineTransform();
+        affine.rotate(ANGLE, WIDTH / 2, HEIGHT / 2);
+        affine.scale(0.99, 0.99);
+        ops.add(new AffineTransformOp(affine, AffineTransformOp.TYPE_BILINEAR));
         ops.add(getGaussianBlurFilter(BLUR, true));
         ops.add(getGaussianBlurFilter(BLUR, false));
 
         rng = new Random();
 
-        image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
+        image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = image.createGraphics();
-        g.setBackground(new Color(0, 0, 0, 0));
+        g.setBackground(Color.BLACK);
         g.clearRect(0, 0, WIDTH, HEIGHT);
 
-        g.setColor(Color.RED);
-        g.fillOval(100, 200, 50, 50);
+        for (int i = 0; i < INIT_DISTURB; i++)
+            disturb();
     }
 
     private void iterate() {
@@ -71,11 +77,26 @@ public class Feedback extends JPanel implements Runnable {
         for (BufferedImageOp op : ops) {
             last = op.filter(last, null);
         }
-        Graphics2D g = image.createGraphics();
-        g.drawImage(last, 0, 0, this);
+        for (int x = 0; x < WIDTH; x++) {
+            for (int y = 0; y < HEIGHT; y++) {
+                int a = last.getRGB(x, y);
+                int b = image.getRGB(x, y);
+                int r = 0;
+                for (int i = 0; i < 32; i += 8) {
+                    int va = (a >> i) & 0xFF;
+                    int vb = (b >> i) & 0xFF;
+                    /* screen */
+                    //int vr = 255 - ((255 - va) * (255 - vb)) / 255;
+                    /* average */
+                    int vr = (va + vb) / 2;
+                    r = r | (vr << i);
+                }
+                image.setRGB(x, y, r);
+            }
+        }
 
         /* Disturb at random. */
-        if (rng.nextInt(20) == 1) {
+        if (rng.nextInt(5) == 0) {
             disturb();
         }
     }
@@ -118,7 +139,7 @@ public class Feedback extends JPanel implements Runnable {
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawImage(image, 0, 0, this);
+        g.drawImage(rescale.filter(image, null), 0, 0, this);
     }
 
     public static ConvolveOp getGaussianBlurFilter(int radius,
