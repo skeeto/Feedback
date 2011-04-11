@@ -126,21 +126,21 @@ public class Feedback extends JPanel implements Runnable {
 
         /* Set up keyboard interaction. */
         this.addKeyListener(new KeyListener() {
-                public void keyTyped(KeyEvent e) {
-                    switch (e.getKeyChar()) {
-                    case 's':
-                        screenshot();
-                        break;
-                    case 'r':
-                        random ^= true;
-                        break;
-                    }
+            public void keyTyped(KeyEvent e) {
+                switch (e.getKeyChar()) {
+                case 's':
+                    screenshot();
+                    break;
+                case 'r':
+                    random ^= true;
+                    break;
                 }
-                public void keyPressed(KeyEvent e) {
-                }
-                public void keyReleased(KeyEvent e) {
-                }
-            });
+            }
+            public void keyPressed(KeyEvent e) {
+            }
+            public void keyReleased(KeyEvent e) {
+            }
+        });
         requestFocusInWindow();
         requestFocus();
 
