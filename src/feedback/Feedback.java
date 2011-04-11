@@ -17,6 +17,7 @@ import java.awt.image.WritableRaster;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.AffineTransformOp;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import javax.swing.JPanel;
@@ -36,11 +37,15 @@ public class Feedback extends JPanel implements Runnable {
     public static int M_SIZE = 50;       /* Mouse pointer size */
     public static float ENHANCE = 1.5f;  /* Display color enhancement */
 
-    private BufferedImage image;
     private ArrayList<BufferedImageOp> ops;
     private RescaleOp rescale;   /* Display purpose only. */
+
+    /* State */
+    private BufferedImage image;
     private int counter;
     private Random rng;
+    private boolean mouse;
+    private int mX, mY;
 
     public static void main(final String[] args) {
         JFrame frame = new JFrame("Feedback");
@@ -75,23 +80,38 @@ public class Feedback extends JPanel implements Runnable {
         g.setBackground(Color.BLACK);
         g.clearRect(0, 0, WIDTH, HEIGHT);
 
+        /* Set up mouse interaction. */
         this.addMouseMotionListener(new MouseMotionListener() {
             public void mouseDragged(MouseEvent e) {
-                mouse(e.getX(), e.getY());
             }
 
             public void mouseMoved(MouseEvent e) {
-                mouse(e.getX(), e.getY());
+                mX = e.getX();
+                mY = e.getY();
+            }
+        });
+        this.addMouseListener(new MouseListener() {
+            public void mouseEntered(MouseEvent e) {
+                mouse = true;
+            }
+            public void mouseExited(MouseEvent e) {
+                mouse = false;
+            }
+            public void mouseClicked(MouseEvent e) {
+            }
+            public void mousePressed(MouseEvent e) {
+            }
+            public void mouseReleased(MouseEvent e) {
             }
         });
 
         initDisturb();
     }
 
-    private void mouse(int x, int y) {
+    private void mouse() {
         Graphics g = image.getGraphics();
         g.setColor(Color.RED);
-        g.fillOval(x - M_SIZE / 2, y - M_SIZE / 2, M_SIZE, M_SIZE);
+        g.fillOval(mX - M_SIZE / 2, mY - M_SIZE / 2, M_SIZE, M_SIZE);
     }
 
     private void iterate() {
@@ -116,6 +136,10 @@ public class Feedback extends JPanel implements Runnable {
                 }
                 image.setRGB(x, y, r);
             }
+        }
+
+        if (mouse) {
+            mouse();
         }
 
         /* Disturb at random. */
