@@ -29,10 +29,12 @@ public class Feedback extends JPanel implements Runnable {
     public static double ANGLE = 2.5;
     public static int BLUR = 1;
     public static int INIT_DISTURB = 50;
+    public static int REINIT = 200;
 
     private BufferedImage image;
     private ArrayList<BufferedImageOp> ops;
     private RescaleOp rescale;   /* Display purpose only. */
+    private int counter;
     private Random rng;
 
     public static void main(final String[] args) {
@@ -68,11 +70,11 @@ public class Feedback extends JPanel implements Runnable {
         g.setBackground(Color.BLACK);
         g.clearRect(0, 0, WIDTH, HEIGHT);
 
-        for (int i = 0; i < INIT_DISTURB; i++)
-            disturb();
+        initDisturb();
     }
 
     private void iterate() {
+        counter++;
         BufferedImage last = deepCopy(image);
         for (BufferedImageOp op : ops) {
             last = op.filter(last, null);
@@ -98,6 +100,9 @@ public class Feedback extends JPanel implements Runnable {
         /* Disturb at random. */
         if (rng.nextInt(5) == 0) {
             disturb();
+        } else if (rng.nextInt(counter) > REINIT) {
+            initDisturb();
+            counter = 0;
         }
     }
 
@@ -115,6 +120,12 @@ public class Feedback extends JPanel implements Runnable {
         case 1:
             g.fillOval(x, y, r, r);
             break;
+        }
+    }
+
+    private void initDisturb() {
+        for (int i = 0; i < INIT_DISTURB; i++) {
+            disturb();
         }
     }
 
