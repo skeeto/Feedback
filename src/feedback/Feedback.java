@@ -1,19 +1,20 @@
 package feedback;
 
 import java.util.Random;
-import java.awt.image.WritableRaster;
-import java.awt.image.ColorModel;
 import java.util.ArrayList;
 
 import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImageOp;
+import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.awt.image.Kernel;
+import java.awt.image.ColorModel;
 import java.awt.image.ConvolveOp;
 import java.awt.image.BufferedImage;
-import java.awt.geom.AffineTransform;
+import java.awt.image.WritableRaster;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.AffineTransformOp;
 
 import javax.swing.JPanel;
 import javax.swing.JFrame;
