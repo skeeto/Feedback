@@ -35,6 +35,7 @@ public class Feedback extends JPanel implements Runnable {
     public static int INIT_DISTURB = 50; /* Initial number of disturbs */
     public static int REINIT = 200;      /* Reinitize period (steps) */
     public static int M_SIZE = 50;       /* Mouse pointer size */
+    public static int COLOR_SPEED = 15;  /* Mouse color change speed */
     public static float ENHANCE = 1.5f;  /* Display color enhancement */
 
     private ArrayList<BufferedImageOp> ops;
@@ -46,6 +47,7 @@ public class Feedback extends JPanel implements Runnable {
     private Random rng;
     private boolean mouse;
     private int mX, mY;
+    private int mR, mG, mB, mA;
 
     public static void main(final String[] args) {
         JFrame frame = new JFrame("Feedback");
@@ -88,6 +90,7 @@ public class Feedback extends JPanel implements Runnable {
             public void mouseMoved(MouseEvent e) {
                 mX = e.getX();
                 mY = e.getY();
+                mouse(false);
             }
         });
         this.addMouseListener(new MouseListener() {
@@ -105,13 +108,28 @@ public class Feedback extends JPanel implements Runnable {
             }
         });
 
+        mR = rng.nextInt(256);
+        mG = rng.nextInt(256);
+        mB = rng.nextInt(256);
+        mA = 255;
+
         initDisturb();
     }
 
-    private void mouse() {
+    private void mouse(boolean change) {
         Graphics g = image.getGraphics();
-        g.setColor(Color.RED);
+        g.setColor(new Color(mR, mG, mB, mA));
         g.fillOval(mX - M_SIZE / 2, mY - M_SIZE / 2, M_SIZE, M_SIZE);
+        if (change) {
+            mR += rng.nextGaussian() * COLOR_SPEED;
+            mG += rng.nextGaussian() * COLOR_SPEED;
+            mB += rng.nextGaussian() * COLOR_SPEED;
+            mA += rng.nextGaussian();
+            mR = Math.max(0, Math.min(mR, 255));
+            mG = Math.max(0, Math.min(mG, 255));
+            mB = Math.max(0, Math.min(mB, 255));
+            mA = Math.max(128, Math.min(mA, 255));
+        }
     }
 
     private void iterate() {
@@ -139,7 +157,7 @@ public class Feedback extends JPanel implements Runnable {
         }
 
         if (mouse) {
-            mouse();
+            mouse(true);
         }
 
         /* Disturb at random. */
