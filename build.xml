@@ -3,10 +3,8 @@
   <property name="jar.file" value="Feedback.jar"/>
   <property name="src.dir" value="src"/>
   <property name="build.dir" value="build"/>
-  <property name="test.dir" value="test"/>
   <property name="doc.dir" value="doc"/>
   <property name="build.classes.dir" value="${build.dir}/classes"/>
-  <property name="test.classes.dir" value="${build.dir}/test"/>
   <taskdef resource="checkstyletask.properties"/>
   <taskdef resource="proguard/ant/task.properties"/>
 
@@ -56,7 +54,6 @@
       <arg value="--mode=java"/>
       <arg value="--suffix=none"/>
       <fileset dir="${src.dir}" includes="**/*.java"/>
-      <fileset dir="${test.dir}" includes="**/*.java"/>
     </apply>
   </target>
 
@@ -78,31 +75,5 @@
     </proguard>
     <delete file="${jar.file}"/>
     <move file="out.${jar.file}" tofile="${jar.file}"/>
-  </target>
-
-  <!-- JUnit -->
-
-  <target name="test-init" depends="init">
-    <mkdir dir="${test.classes.dir}"/>
-  </target>
-
-  <target name="test-compile" depends="test-init,compile">
-    <javac srcdir="${test.dir}" destdir="${test.classes.dir}"
-	   classpath="${build.classes.dir}" includeantruntime="yes">
-      <compilerarg value="-Xlint"/>
-    </javac>
-  </target>
-
-  <target name="test" depends="test-compile" description="Run all tests.">
-    <junit>
-      <classpath>
-	<pathelement path="${build.classes.dir}"/>
-	<pathelement path="${test.classes.dir}"/>
-      </classpath>
-      <batchtest>
-	<formatter type="brief" usefile="false"/>
-	<fileset dir="${test.classes.dir}"/>
-      </batchtest>
-    </junit>
   </target>
 </project>
