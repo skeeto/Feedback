@@ -16,6 +16,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.AffineTransformOp;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 
 import javax.swing.JPanel;
 import javax.swing.JFrame;
@@ -30,6 +32,7 @@ public class Feedback extends JPanel implements Runnable {
     public static int BLUR = 1;
     public static int INIT_DISTURB = 50;
     public static int REINIT = 200;
+    public static int M_SIZE = 50;
 
     private BufferedImage image;
     private ArrayList<BufferedImageOp> ops;
@@ -70,7 +73,23 @@ public class Feedback extends JPanel implements Runnable {
         g.setBackground(Color.BLACK);
         g.clearRect(0, 0, WIDTH, HEIGHT);
 
+        this.addMouseMotionListener(new MouseMotionListener() {
+                public void mouseDragged(MouseEvent e) {
+                    mouse(e.getX(), e.getY());
+                }
+
+                public void mouseMoved(MouseEvent e) {
+                    mouse(e.getX(), e.getY());
+                }
+            });
+
         initDisturb();
+    }
+
+    private void mouse(int x, int y) {
+        Graphics g = image.getGraphics();
+        g.setColor(Color.RED);
+        g.fillOval(x - M_SIZE / 2, y - M_SIZE / 2, M_SIZE, M_SIZE);
     }
 
     private void iterate() {
