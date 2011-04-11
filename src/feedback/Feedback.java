@@ -1,6 +1,5 @@
 package feedback;
 
-import java.awt.image.RescaleOp;
 import java.util.Random;
 import java.util.ArrayList;
 
@@ -10,6 +9,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.Kernel;
+import java.awt.image.RescaleOp;
 import java.awt.image.ColorModel;
 import java.awt.image.ConvolveOp;
 import java.awt.image.BufferedImage;
