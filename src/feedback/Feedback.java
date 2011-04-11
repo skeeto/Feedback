@@ -133,7 +133,8 @@ public class Feedback extends JPanel implements Runnable {
     }
 
     private void iterate() {
-        counter++;
+        if (!mouse)
+            counter++;
         BufferedImage last = deepCopy(image);
         for (BufferedImageOp op : ops) {
             last = op.filter(last, null);
