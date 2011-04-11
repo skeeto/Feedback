@@ -25,7 +25,7 @@ public class Feedback extends JPanel implements Runnable {
 
     public static int WIDTH = 640;
     public static int HEIGHT = 640;
-    public static int SPEED = 100;
+    public static int SPEED = 30;
     public static double ANGLE = 2.5;
     public static int BLUR = 1;
     public static int INIT_DISTURB = 50;
