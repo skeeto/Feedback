@@ -86,8 +86,15 @@ public class Feedback extends JPanel implements Runnable {
         int y = rng.nextInt(WIDTH);
         int x = rng.nextInt(HEIGHT);
         g.setColor(new Color(rng.nextInt(256), rng.nextInt(256),
-                             rng.nextInt(256), rng.nextInt(256)));
-        g.fillOval(x, y, r, r);
+                             rng.nextInt(256), rng.nextInt(127) + 128));
+        switch (rng.nextInt(2)) {
+        case 0:
+            g.fillRect(x, y, r, r);
+            break;
+        case 1:
+            g.fillOval(x, y, r, r);
+            break;
+        }
     }
 
     public static BufferedImage deepCopy(BufferedImage bi) {
