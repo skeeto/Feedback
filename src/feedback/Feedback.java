@@ -25,14 +25,16 @@ import javax.swing.JFrame;
 public class Feedback extends JPanel implements Runnable {
     private static final long serialVersionUID = 328407319480529736L;
 
-    public static int WIDTH = 640;
-    public static int HEIGHT = 640;
-    public static int SPEED = 30;
-    public static double ANGLE = 2.5;
-    public static int BLUR = 1;
-    public static int INIT_DISTURB = 50;
-    public static int REINIT = 200;
-    public static int M_SIZE = 50;
+    public static int WIDTH = 640;       /* Display width */
+    public static int HEIGHT = 640;      /* Display height */
+    public static int SPEED = 30;        /* Animation delay (ms) */
+    public static double ANGLE = 2.5;    /* Rotate op (radians) */
+    public static double SCALE = 0.99;   /* Resize op */
+    public static int BLUR = 1;          /* Guassian filter radius */
+    public static int INIT_DISTURB = 50; /* Initial number of disturbs */
+    public static int REINIT = 200;      /* Reinitize period (steps) */
+    public static int M_SIZE = 50;       /* Mouse pointer size */
+    public static float ENHANCE = 1.5f;  /* Display color enhancement */
 
     private BufferedImage image;
     private ArrayList<BufferedImageOp> ops;
@@ -56,12 +58,12 @@ public class Feedback extends JPanel implements Runnable {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setBackground(Color.BLACK);
 
-        rescale = new RescaleOp(1.5f, 0.0f, null);
+        rescale = new RescaleOp(ENHANCE, 0.0f, null);
 
         ops = new ArrayList<BufferedImageOp>();
         AffineTransform affine = new AffineTransform();
         affine.rotate(ANGLE, WIDTH / 2, HEIGHT / 2);
-        affine.scale(0.99, 0.99);
+        affine.scale(SCALE, SCALE);
         ops.add(new AffineTransformOp(affine, AffineTransformOp.TYPE_BILINEAR));
         ops.add(getGaussianBlurFilter(BLUR, true));
         ops.add(getGaussianBlurFilter(BLUR, false));
