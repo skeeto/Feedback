@@ -1,5 +1,7 @@
 package feedback;
 
+import java.io.File;
+
 import java.util.Random;
 import java.util.ArrayList;
 
@@ -16,12 +18,18 @@ import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.AffineTransformOp;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+import javax.imageio.ImageIO;
+
 import javax.swing.JPanel;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JFileChooser;
 
 public class Feedback extends JPanel implements Runnable {
     private static final long serialVersionUID = 328407319480529736L;
@@ -39,7 +47,7 @@ public class Feedback extends JPanel implements Runnable {
     public static float ENHANCE = 1.5f;  /* Display color enhancement */
 
     private ArrayList<BufferedImageOp> ops;
-    private RescaleOp rescale;   /* Display purpose only. */
+    private RescaleOp display;   /* Display purpose only. */
 
     /* State */
     private BufferedImage image;
@@ -49,8 +57,14 @@ public class Feedback extends JPanel implements Runnable {
     private int mX, mY;
     private int mR, mG, mB, mA;
 
+    /* GUI */
+    public static JFrame frame;
+
+    /* Config */
+    private boolean random = true;
+
     public static void main(final String[] args) {
-        JFrame frame = new JFrame("Feedback");
+        frame = new JFrame("Feedback");
         Feedback feedback = new Feedback();
         frame.add(feedback);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -65,7 +79,7 @@ public class Feedback extends JPanel implements Runnable {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setBackground(Color.BLACK);
 
-        rescale = new RescaleOp(ENHANCE, 0.0f, null);
+        display = new RescaleOp(ENHANCE, 0.0f, null);
 
         ops = new ArrayList<BufferedImageOp>();
         AffineTransform affine = new AffineTransform();
@@ -101,12 +115,34 @@ public class Feedback extends JPanel implements Runnable {
                 mouse = false;
             }
             public void mouseClicked(MouseEvent e) {
+                requestFocusInWindow();
+                requestFocus();
             }
             public void mousePressed(MouseEvent e) {
             }
             public void mouseReleased(MouseEvent e) {
             }
         });
+
+        /* Set up keyboard interaction. */
+        this.addKeyListener(new KeyListener() {
+                public void keyTyped(KeyEvent e) {
+                    switch (e.getKeyChar()) {
+                    case 's':
+                        screenshot();
+                        break;
+                    case 'r':
+                        random ^= true;
+                        break;
+                    }
+                }
+                public void keyPressed(KeyEvent e) {
+                }
+                public void keyReleased(KeyEvent e) {
+                }
+            });
+        requestFocusInWindow();
+        requestFocus();
 
         mR = rng.nextInt(256);
         mG = rng.nextInt(256);
@@ -129,6 +165,25 @@ public class Feedback extends JPanel implements Runnable {
             mG = Math.max(0, Math.min(mG, 255));
             mB = Math.max(0, Math.min(mB, 255));
             mA = Math.max(128, Math.min(mA, 255));
+        }
+    }
+
+    private void screenshot() {
+        JFileChooser fc = new JFileChooser();
+        int rc = fc.showDialog(frame, "Save Screenshot");
+        if (rc == JFileChooser.APPROVE_OPTION) {
+            save(fc.getSelectedFile());
+        }
+    }
+
+    private void save(File file) {
+        try {
+            ImageIO.write(display.filter(image, null), "PNG", file);
+        } catch (java.io.IOException e) {
+            JOptionPane.showMessageDialog(frame,
+                                          "Unable to write " + file,
+                                          "Save failed",
+                                          JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -162,11 +217,13 @@ public class Feedback extends JPanel implements Runnable {
         }
 
         /* Disturb at random. */
-        if (rng.nextInt(5) == 0) {
-            disturb();
-        } else if (rng.nextInt(counter) > REINIT) {
-            initDisturb();
-            counter = 0;
+        if (random) {
+            if (rng.nextInt(5) == 0) {
+                disturb();
+            } else if (rng.nextInt(counter) > REINIT) {
+                initDisturb();
+                counter = 0;
+            }
         }
     }
 
@@ -214,7 +271,7 @@ public class Feedback extends JPanel implements Runnable {
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawImage(rescale.filter(image, null), 0, 0, this);
+        g.drawImage(display.filter(image, null), 0, 0, this);
     }
 
     public static ConvolveOp getGaussianBlurFilter(int radius,
