@@ -58,9 +58,9 @@ public class Feedback extends JPanel implements Runnable {
         rng = new Random();
 
         image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
-        Graphics g = image.getGraphics();
-        g.setColor(new Color(0, 0, 0, 0));
-        g.fillRect(0, 0, WIDTH, HEIGHT);
+        Graphics2D g = image.createGraphics();
+        g.setBackground(new Color(0, 0, 0, 0));
+        g.clearRect(0, 0, WIDTH, HEIGHT);
 
         g.setColor(Color.RED);
         g.fillOval(100, 200, 50, 50);
@@ -71,18 +71,23 @@ public class Feedback extends JPanel implements Runnable {
         for (BufferedImageOp op : ops) {
             last = op.filter(last, null);
         }
-        image.getGraphics().drawImage(last, 0, 0, this);
+        Graphics2D g = image.createGraphics();
+        g.drawImage(last, 0, 0, this);
 
         /* Disturb at random. */
         if (rng.nextInt(20) == 1) {
-            Graphics g = image.getGraphics();
-            int r = (int) Math.abs(rng.nextGaussian() * 100);
-            int y = rng.nextInt(WIDTH);
-            int x = rng.nextInt(HEIGHT);
-            g.setColor(new Color(rng.nextInt(256), rng.nextInt(256),
-                                 rng.nextInt(256), rng.nextInt(256)));
-            g.fillOval(x, y, r, r);
+            disturb();
         }
+    }
+
+    private void disturb() {
+        Graphics g = image.getGraphics();
+        int r = (int) Math.abs(rng.nextGaussian() * 100);
+        int y = rng.nextInt(WIDTH);
+        int x = rng.nextInt(HEIGHT);
+        g.setColor(new Color(rng.nextInt(256), rng.nextInt(256),
+                             rng.nextInt(256), rng.nextInt(256)));
+        g.fillOval(x, y, r, r);
     }
 
     public static BufferedImage deepCopy(BufferedImage bi) {
