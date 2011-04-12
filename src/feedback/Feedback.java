@@ -229,7 +229,7 @@ public class Feedback extends JPanel implements Runnable {
     private void save(File file) {
         try {
             ImageIO.write(display.filter(image, null), "PNG", file);
-        } catch (java.io.IOException e) {
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(frame,
                                           "Unable to write " + file,
                                           "Save failed",
