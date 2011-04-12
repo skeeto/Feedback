@@ -9,6 +9,7 @@ import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.FontMetrics;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.Kernel;
@@ -65,6 +66,7 @@ public class Feedback extends JPanel implements Runnable {
     /* Config */
     private boolean pause = false;
     private boolean random = true;
+    private boolean help = false;
     private double angle = ANGLE;
     private double scale = SCALE;
 
@@ -162,8 +164,16 @@ public class Feedback extends JPanel implements Runnable {
                 }
             }
             public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_F1) {
+                    help = true;
+                    repaint();
+                }
             }
             public void keyReleased(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_F1) {
+                    help = false;
+                    repaint();
+                }
             }
         });
         requestFocusInWindow();
@@ -335,6 +345,32 @@ public class Feedback extends JPanel implements Runnable {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.drawImage(display.filter(image, null), 0, 0, this);
+        if (help) {
+            /* Print some help information. */
+            FontMetrics fm = g.getFontMetrics();
+            int h = fm.getAscent() + fm.getDescent();
+            g.setColor(Color.WHITE);
+            int x1 = 10;
+            int x2 = 50;
+            int y = h;
+            g.drawString("Shortcut keys:", x1, y);
+            y += h * 2;
+            g.drawString("n", x1, y);
+            g.drawString("Toggle automated noise", x2, y);
+            y += h;
+            g.drawString("g/G", x1, y);
+            g.drawString("Increase/decrease gravity", x2, y);
+            y += h;
+            g.drawString("r/R", x1, y);
+            g.drawString("Increase/decrease rotation", x2, y);
+            y += h;
+            g.drawString("p", x1, y);
+            g.drawString("Toggle pause/play", x2, y);
+            y += h;
+            g.drawString("s", x1, y);
+            g.drawString("Save a screenshot", x2, y);
+            y += h;
+        }
     }
 
     public static ConvolveOp getGaussianBlurFilter(int radius,
