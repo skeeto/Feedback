@@ -212,8 +212,6 @@ public class Feedback extends JPanel implements Runnable {
         affine.rotate(angle, WIDTH / 2, HEIGHT / 2);
         affine.scale(scale, scale);
         ops.add(new AffineTransformOp(affine, AffineTransformOp.TYPE_BILINEAR));
-        ops.add(getGaussianBlurFilter(BLUR, true));
-        ops.add(getGaussianBlurFilter(BLUR, false));
         this.ops = ops;
     }
 
