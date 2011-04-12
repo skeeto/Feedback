@@ -220,7 +220,7 @@ public class Feedback extends JPanel implements Runnable {
         pause(true);
         JFileChooser fc = new JFileChooser();
         FileNameExtensionFilter filter
-            = new FileNameExtensionFilter("PNG Images", "png");
+        = new FileNameExtensionFilter("PNG Images", "png");
         fc.setFileFilter(filter);
         int rc = fc.showDialog(frame, "Save Screenshot");
         if (rc == JFileChooser.APPROVE_OPTION) {
