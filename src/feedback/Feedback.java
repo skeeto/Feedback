@@ -9,6 +9,7 @@ import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.Kernel;
 import java.awt.image.RescaleOp;
@@ -197,7 +198,9 @@ public class Feedback extends JPanel implements Runnable {
     }
 
     private void mouse(boolean change) {
-        Graphics g = image.getGraphics();
+        Graphics2D g = image.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                           RenderingHints.VALUE_ANTIALIAS_ON);
         g.setColor(new Color(mR, mG, mB, mA));
         g.fillOval(mX - M_SIZE / 2, mY - M_SIZE / 2, M_SIZE, M_SIZE);
         if (change) {
