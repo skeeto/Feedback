@@ -177,7 +177,7 @@ public class Feedback extends JPanel implements Runnable {
         initDisturb();
     }
 
-    private synchronized void pause(Boolean pause) {
+    public synchronized void pause(Boolean pause) {
         if (pause != null && this.pause == pause)
             return;
         synchronized (image) {
@@ -218,13 +218,18 @@ public class Feedback extends JPanel implements Runnable {
     private void screenshot() {
         boolean state = pause;
         pause(true);
-        JFileChooser fc = new JFileChooser();
-        FileNameExtensionFilter filter
-        = new FileNameExtensionFilter("PNG Images", "png");
-        fc.setFileFilter(filter);
-        int rc = fc.showDialog(frame, "Save Screenshot");
-        if (rc == JFileChooser.APPROVE_OPTION) {
-            save(fc.getSelectedFile());
+        try {
+            JFileChooser fc = new JFileChooser();
+            FileNameExtensionFilter filter
+            = new FileNameExtensionFilter("PNG Images", "png");
+            fc.setFileFilter(filter);
+            int rc = fc.showDialog(frame, "Save Screenshot");
+            if (rc == JFileChooser.APPROVE_OPTION) {
+                save(fc.getSelectedFile());
+            }
+        } catch (java.security.AccessControlException ec) {
+            /* We're in the applet. */
+            System.out.println("Cannot save screenshot now.");
         }
         pause(state);
     }
