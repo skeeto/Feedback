@@ -72,6 +72,7 @@ public class Feedback extends JPanel implements Runnable {
     private boolean help = false;
     private double angle = ANGLE;
     private double scale = SCALE;
+    private volatile double speed = SPEED;
 
     public static void main(final String[] args) {
         frame = new JFrame("Feedback");
@@ -170,6 +171,14 @@ public class Feedback extends JPanel implements Runnable {
                     /* Pause/play */
                 case 'p':
                     pause(null);
+                    break;
+
+                    /* Animation speed */
+                case '+':
+                    speed /= 1.1;
+                    break;
+                case '-':
+                    speed *= 1.1;
                     break;
                 }
             }
@@ -338,7 +347,7 @@ public class Feedback extends JPanel implements Runnable {
     public void run() {
         while (true) {
             try {
-                Thread.sleep(SPEED);
+                Thread.sleep((int) speed);
                 if (pause) {
                     synchronized (image) {
                         image.wait();
@@ -373,6 +382,9 @@ public class Feedback extends JPanel implements Runnable {
             y += h;
             g.drawString("r/R", x1, y);
             g.drawString("Increase/decrease rotation", x2, y);
+            y += h;
+            g.drawString("+/-", x1, y);
+            g.drawString("Increase/decrease animation speed", x2, y);
             y += h;
             g.drawString("p", x1, y);
             g.drawString("Toggle pause/play", x2, y);
