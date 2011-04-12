@@ -212,11 +212,14 @@ public class Feedback extends JPanel implements Runnable {
     }
 
     private void screenshot() {
+        boolean state = pause;
+        pause(true);
         JFileChooser fc = new JFileChooser();
         int rc = fc.showDialog(frame, "Save Screenshot");
         if (rc == JFileChooser.APPROVE_OPTION) {
             save(fc.getSelectedFile());
         }
+        pause(state);
     }
 
     private void save(File file) {
