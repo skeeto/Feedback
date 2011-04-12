@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Feedback extends JPanel implements Runnable {
     private static final long serialVersionUID = 328407319480529736L;
@@ -215,6 +216,9 @@ public class Feedback extends JPanel implements Runnable {
         boolean state = pause;
         pause(true);
         JFileChooser fc = new JFileChooser();
+        FileNameExtensionFilter filter
+            = new FileNameExtensionFilter("PNG Images", "png");
+        fc.setFileFilter(filter);
         int rc = fc.showDialog(frame, "Save Screenshot");
         if (rc == JFileChooser.APPROVE_OPTION) {
             save(fc.getSelectedFile());
