@@ -11,6 +11,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.FontMetrics;
 import java.awt.RenderingHints;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.GraphicsConfiguration;
 import java.awt.geom.AffineTransform;
 import java.awt.image.Kernel;
 import java.awt.image.RescaleOp;
@@ -53,7 +56,7 @@ public class Feedback extends JPanel implements Runnable {
     private RescaleOp display;   /* Display purpose only. */
 
     /* State */
-    private BufferedImage image;
+    private BufferedImage image, workA, workB;
     private int counter = 1;
     private Random rng;
     private boolean mouse;
@@ -92,7 +95,13 @@ public class Feedback extends JPanel implements Runnable {
 
         rng = new Random();
 
-        image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+        GraphicsEnvironment ge;
+        ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gd = ge.getScreenDevices()[0];
+        GraphicsConfiguration gc = gd.getConfigurations()[0];
+        image = gc.createCompatibleImage(WIDTH, HEIGHT);
+        workA = gc.createCompatibleImage(WIDTH, HEIGHT);
+        workB = gc.createCompatibleImage(WIDTH, HEIGHT);
         Graphics2D g = image.createGraphics();
         g.setBackground(Color.BLACK);
         g.clearRect(0, 0, WIDTH, HEIGHT);
@@ -259,10 +268,18 @@ public class Feedback extends JPanel implements Runnable {
     private void iterate() {
         if (!mouse)
             counter++;
-        BufferedImage last = deepCopy(image);
-        for (BufferedImageOp op : ops) {
-            last = op.filter(last, null);
+
+        /* Apply "camera" effects to the image. */
+        ops.get(0).filter(image, workA);
+        for (int i = 1; i < ops.size(); i++) {
+            ops.get(i).filter(workA, workB);
+            BufferedImage swap = workA;
+            workA = workB;
+            workB = swap;
         }
+
+        /* Mix back into the original image. */
+        BufferedImage last = workA;
         for (int x = 0; x < WIDTH; x++) {
             for (int y = 0; y < HEIGHT; y++) {
                 int a = last.getRGB(x, y);
@@ -281,6 +298,7 @@ public class Feedback extends JPanel implements Runnable {
             }
         }
 
+        /* Apply mouse input. */
         if (mouse) {
             mouse(true);
         }
@@ -317,13 +335,6 @@ public class Feedback extends JPanel implements Runnable {
         for (int i = 0; i < INIT_DISTURB; i++) {
             disturb();
         }
-    }
-
-    public static BufferedImage deepCopy(BufferedImage bi) {
-        ColorModel cm = bi.getColorModel();
-        boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
-        WritableRaster raster = bi.copyData(null);
-        return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
     }
 
     public void run() {
