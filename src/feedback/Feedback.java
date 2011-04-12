@@ -52,7 +52,7 @@ public class Feedback extends JPanel implements Runnable {
 
     /* State */
     private BufferedImage image;
-    private int counter;
+    private int counter = 1;
     private Random rng;
     private boolean mouse;
     private int mX, mY;
@@ -272,7 +272,7 @@ public class Feedback extends JPanel implements Runnable {
                 disturb();
             } else if (rng.nextInt(counter) > REINIT) {
                 initDisturb();
-                counter = 0;
+                counter = 1;
             }
         }
     }
