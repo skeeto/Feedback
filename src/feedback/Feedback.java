@@ -62,6 +62,8 @@ public class Feedback extends JPanel implements Runnable {
 
     /* Config */
     private boolean random = true;
+    private double angle = ANGLE;
+    private double scale = SCALE;
 
     public static void main(final String[] args) {
         frame = new JFrame("Feedback");
@@ -81,13 +83,7 @@ public class Feedback extends JPanel implements Runnable {
 
         display = new RescaleOp(ENHANCE, 0.0f, null);
 
-        ops = new ArrayList<BufferedImageOp>();
-        AffineTransform affine = new AffineTransform();
-        affine.rotate(ANGLE, WIDTH / 2, HEIGHT / 2);
-        affine.scale(SCALE, SCALE);
-        ops.add(new AffineTransformOp(affine, AffineTransformOp.TYPE_BILINEAR));
-        ops.add(getGaussianBlurFilter(BLUR, true));
-        ops.add(getGaussianBlurFilter(BLUR, false));
+        createOps();
 
         rng = new Random();
 
@@ -131,8 +127,29 @@ public class Feedback extends JPanel implements Runnable {
                 case 's':
                     screenshot();
                     break;
-                case 'r':
+                case 'n':
                     random ^= true;
+                    break;
+
+                    /* Rotation*/
+                case 'r':
+                    angle /= 1.01;
+                    createOps();
+                    break;
+                case 'R':
+                    angle *= 1.01;
+                    createOps();
+                    break;
+
+                    /* Scale */
+                case 'g':
+                    scale /= 1.01;
+                    createOps();
+                    break;
+                case 'G':
+                    scale *= 1.01;
+                    scale = Math.min(scale, SCALE);
+                    createOps();
                     break;
                 }
             }
@@ -150,6 +167,17 @@ public class Feedback extends JPanel implements Runnable {
         mA = 255;
 
         initDisturb();
+    }
+
+    private synchronized void createOps() {
+        ArrayList<BufferedImageOp> ops = new ArrayList<BufferedImageOp>();
+        AffineTransform affine = new AffineTransform();
+        affine.rotate(angle, WIDTH / 2, HEIGHT / 2);
+        affine.scale(scale, scale);
+        ops.add(new AffineTransformOp(affine, AffineTransformOp.TYPE_BILINEAR));
+        ops.add(getGaussianBlurFilter(BLUR, true));
+        ops.add(getGaussianBlurFilter(BLUR, false));
+        this.ops = ops;
     }
 
     private void mouse(boolean change) {
