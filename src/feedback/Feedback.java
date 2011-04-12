@@ -105,7 +105,8 @@ public class Feedback extends JPanel implements Runnable {
             public void mouseMoved(MouseEvent e) {
                 mX = e.getX();
                 mY = e.getY();
-                mouse(false);
+                if (!pause)
+                    mouse(false);
             }
         });
         this.addMouseListener(new MouseListener() {
