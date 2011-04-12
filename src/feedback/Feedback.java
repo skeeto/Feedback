@@ -61,6 +61,7 @@ public class Feedback extends JPanel implements Runnable {
     public static JFrame frame;
 
     /* Config */
+    private boolean pause = false;
     private boolean random = true;
     private double angle = ANGLE;
     private double scale = SCALE;
@@ -151,6 +152,11 @@ public class Feedback extends JPanel implements Runnable {
                     scale = Math.min(scale, SCALE);
                     createOps();
                     break;
+
+                    /* Pause/play */
+                case 'p':
+                    pause(null);
+                    break;
                 }
             }
             public void keyPressed(KeyEvent e) {
@@ -167,6 +173,15 @@ public class Feedback extends JPanel implements Runnable {
         mA = 255;
 
         initDisturb();
+    }
+
+    private synchronized void pause(Boolean pause) {
+        if (pause != null && this.pause == pause)
+            return;
+        synchronized (image) {
+            image.notifyAll();
+        }
+        this.pause ^= true;
     }
 
     private synchronized void createOps() {
@@ -289,6 +304,11 @@ public class Feedback extends JPanel implements Runnable {
         while (true) {
             try {
                 Thread.sleep(SPEED);
+                if (pause) {
+                    synchronized (image) {
+                        image.wait();
+                    }
+                }
                 iterate();
                 repaint();
             } catch (InterruptedException e) {
