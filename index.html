@@ -1,6 +1,22 @@
 <html>
   <head>
     <title>Feedback Loop</title>
+    <style type="text/css">
+      p, hr {
+        width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: justify;
+        text-indent: 3em;
+      }
+      h1 {
+        text-align: center;
+      }
+      body {
+        background: black;
+        color: DarkSalmon;
+      }
+    </style>
   </head>
   <body bgcolor="black" text="gray">
     <center>
@@ -9,7 +25,30 @@
 	      archive="Feedback.jar" width="640" height="640">
       </applet>
       <p>
-	Try running this <a href="Feedback.jar">as a standalone .jar</a>.
+	Try moving your mouse across the applet. Hold F1 for a list of
+	shortcut keys -- you may need to click to give the applet focus.
+      </p>
+      <p>
+	Running this <a href="Feedback.jar">as a standalone .jar</a>
+	will allow you to save screenshots.
+      </p>
+      <hr/>
+      <h2>What's going on here?</h2>
+      <p>
+	Imagine the effect of pointing a camera at its own
+	display. The image on the display screen goes back into the
+	camera, undergoes effects of being captured the camera --
+	including time delay -- and is drawn back out to the
+	display. This process continues rapidly and endlessly, with
+	the image getting smaller and more distorted at each
+	step. Emergent, fractal behavior occurs near the center of the
+	display as the loops reacts to itself.
+      </p>
+      <p>
+	This applet simulates that effect by feeding the display image
+	back into itself each time it is drawn to the screen. Watch
+	the movements of your mouse cursor spiral towards the center
+	of the image mimicking your movements.
       </p>
     </center>
   </body>
