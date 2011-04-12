@@ -240,6 +240,7 @@ public class Feedback extends JPanel implements Runnable {
             mB = Math.max(0, Math.min(mB, 255));
             mA = Math.max(128, Math.min(mA, 255));
         }
+        repaint();
     }
 
     private void screenshot() {
