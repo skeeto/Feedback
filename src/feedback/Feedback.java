@@ -273,6 +273,16 @@ public class Feedback extends JPanel implements Runnable {
         }
     }
 
+    private void message(String msg) {
+        Graphics2D g = image.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                           RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setColor(Color.WHITE);
+        FontMetrics fm = g.getFontMetrics();
+        int w = fm.stringWidth(msg);
+        g.drawString(msg, WIDTH / 2 - w / 2, HEIGHT - fm.getAscent() * 2);
+    }
+
     private void iterate() {
         if (!mouse)
             counter++;
