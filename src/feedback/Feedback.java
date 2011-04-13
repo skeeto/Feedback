@@ -220,7 +220,8 @@ public class Feedback extends JPanel implements Runnable {
         AffineTransform affine = new AffineTransform();
         affine.rotate(angle, WIDTH / 2, HEIGHT / 2);
         affine.scale(scale, scale);
-        ops.add(new AffineTransformOp(affine, AffineTransformOp.TYPE_BILINEAR));
+        //ops.add(new AffineTransformOp(affine, AffineTransformOp.TYPE_BILINEAR));
+        ops.add(new FractalOp(false));
         this.ops = ops;
     }
 
