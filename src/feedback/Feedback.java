@@ -105,7 +105,7 @@ public class Feedback extends JPanel implements Runnable {
         workB = gc.createCompatibleImage(WIDTH, HEIGHT);
         Graphics2D g = image.createGraphics();
         g.setBackground(Color.BLACK);
-        g.clearRect(0, 0, WIDTH, HEIGHT);
+        clear();
 
         /* Set up mouse interaction. */
         this.addMouseMotionListener(new MouseMotionListener() {
@@ -177,6 +177,11 @@ public class Feedback extends JPanel implements Runnable {
                     pause(null);
                     break;
 
+                    /* Clear the screen */
+                case 'c':
+                    clear();
+                    break;
+
                     /* Animation speed */
                 case '+':
                     speed /= 1.1;
@@ -219,6 +224,12 @@ public class Feedback extends JPanel implements Runnable {
             image.notifyAll();
         }
         this.pause ^= true;
+    }
+
+    public void clear() {
+        synchronized (image) {
+            image.getGraphics().clearRect(0, 0, WIDTH, HEIGHT);
+        }
     }
 
     private synchronized void createOps() {
@@ -416,6 +427,9 @@ public class Feedback extends JPanel implements Runnable {
             y += h;
             g.drawString("+/-", x1, y);
             g.drawString("Increase/decrease animation speed", x2, y);
+            y += h;
+            g.drawString("c", x1, y);
+            g.drawString("Clear the screen", x2, y);
             y += h;
             g.drawString("p", x1, y);
             g.drawString("Toggle pause/play", x2, y);
