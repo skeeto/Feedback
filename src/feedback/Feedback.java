@@ -145,6 +145,10 @@ public class Feedback extends JPanel implements Runnable {
                     break;
                 case 'n':
                     random ^= true;
+                    if (random)
+                        message("Noise on");
+                    else
+                        message("Noise off");
                     break;
 
                     /* Rotation*/
