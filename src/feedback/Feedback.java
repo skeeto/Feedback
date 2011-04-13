@@ -231,20 +231,22 @@ public class Feedback extends JPanel implements Runnable {
     }
 
     private void mouse(boolean change) {
-        Graphics2D g = image.createGraphics();
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                           RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setColor(new Color(mR, mG, mB, mA));
-        g.fillOval(mX - M_SIZE / 2, mY - M_SIZE / 2, M_SIZE, M_SIZE);
-        if (change) {
-            mR += rng.nextGaussian() * COLOR_SPEED;
-            mG += rng.nextGaussian() * COLOR_SPEED;
-            mB += rng.nextGaussian() * COLOR_SPEED;
-            mA += rng.nextGaussian();
-            mR = Math.max(0, Math.min(mR, 255));
-            mG = Math.max(0, Math.min(mG, 255));
-            mB = Math.max(0, Math.min(mB, 255));
-            mA = Math.max(128, Math.min(mA, 255));
+        synchronized (image) {
+            Graphics2D g = image.createGraphics();
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                               RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setColor(new Color(mR, mG, mB, mA));
+            g.fillOval(mX - M_SIZE / 2, mY - M_SIZE / 2, M_SIZE, M_SIZE);
+            if (change) {
+                mR += rng.nextGaussian() * COLOR_SPEED;
+                mG += rng.nextGaussian() * COLOR_SPEED;
+                mB += rng.nextGaussian() * COLOR_SPEED;
+                mA += rng.nextGaussian();
+                mR = Math.max(0, Math.min(mR, 255));
+                mG = Math.max(0, Math.min(mG, 255));
+                mB = Math.max(0, Math.min(mB, 255));
+                mA = Math.max(128, Math.min(mA, 255));
+            }
         }
         repaint();
     }
@@ -280,13 +282,15 @@ public class Feedback extends JPanel implements Runnable {
     }
 
     private void message(String msg) {
-        Graphics2D g = image.createGraphics();
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                           RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setColor(Color.WHITE);
-        FontMetrics fm = g.getFontMetrics();
-        int w = fm.stringWidth(msg);
-        g.drawString(msg, WIDTH / 2 - w / 2, HEIGHT - fm.getAscent() * 2);
+        synchronized (image) {
+            Graphics2D g = image.createGraphics();
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                               RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setColor(Color.WHITE);
+            FontMetrics fm = g.getFontMetrics();
+            int w = fm.stringWidth(msg);
+            g.drawString(msg, WIDTH / 2 - w / 2, HEIGHT - fm.getAscent() * 2);
+        }
         repaint();
     }
 
@@ -294,32 +298,34 @@ public class Feedback extends JPanel implements Runnable {
         if (!mouse)
             counter++;
 
-        /* Apply "camera" effects to the image. */
-        ops.get(0).filter(image, workA);
-        for (int i = 1; i < ops.size(); i++) {
-            ops.get(i).filter(workA, workB);
-            BufferedImage swap = workA;
-            workA = workB;
-            workB = swap;
-        }
+        synchronized (image) {
+            /* Apply "camera" effects to the image. */
+            ops.get(0).filter(image, workA);
+            for (int i = 1; i < ops.size(); i++) {
+                ops.get(i).filter(workA, workB);
+                BufferedImage swap = workA;
+                workA = workB;
+                workB = swap;
+            }
 
-        /* Mix back into the original image. */
-        BufferedImage last = workA;
-        for (int x = 0; x < WIDTH; x++) {
-            for (int y = 0; y < HEIGHT; y++) {
-                int a = last.getRGB(x, y);
-                int b = image.getRGB(x, y);
-                int r = 0;
-                for (int i = 0; i < 32; i += 8) {
-                    int va = (a >> i) & 0xFF;
-                    int vb = (b >> i) & 0xFF;
-                    /* screen */
-                    //int vr = 255 - ((255 - va) * (255 - vb)) / 255;
-                    /* average */
-                    int vr = (va + vb) / 2;
-                    r = r | (vr << i);
+            /* Mix back into the original image. */
+            BufferedImage last = workA;
+            for (int x = 0; x < WIDTH; x++) {
+                for (int y = 0; y < HEIGHT; y++) {
+                    int a = last.getRGB(x, y);
+                    int b = image.getRGB(x, y);
+                    int r = 0;
+                    for (int i = 0; i < 32; i += 8) {
+                        int va = (a >> i) & 0xFF;
+                        int vb = (b >> i) & 0xFF;
+                        /* screen */
+                        //int vr = 255 - ((255 - va) * (255 - vb)) / 255;
+                        /* average */
+                        int vr = (va + vb) / 2;
+                        r = r | (vr << i);
+                    }
+                    image.setRGB(x, y, r);
                 }
-                image.setRGB(x, y, r);
             }
         }
 
@@ -340,19 +346,21 @@ public class Feedback extends JPanel implements Runnable {
     }
 
     private void disturb() {
-        Graphics g = image.getGraphics();
-        int r = (int) Math.abs(rng.nextGaussian() * 100);
-        int y = rng.nextInt(WIDTH);
-        int x = rng.nextInt(HEIGHT);
-        g.setColor(new Color(rng.nextInt(256), rng.nextInt(256),
-                             rng.nextInt(256), rng.nextInt(127) + 128));
-        switch (rng.nextInt(2)) {
-        case 0:
-            g.fillRect(x, y, r, r);
-            break;
-        case 1:
-            g.fillOval(x, y, r, r);
-            break;
+        synchronized (image) {
+            Graphics g = image.getGraphics();
+            int r = (int) Math.abs(rng.nextGaussian() * 100);
+            int y = rng.nextInt(WIDTH);
+            int x = rng.nextInt(HEIGHT);
+            g.setColor(new Color(rng.nextInt(256), rng.nextInt(256),
+                                 rng.nextInt(256), rng.nextInt(127) + 128));
+            switch (rng.nextInt(2)) {
+            case 0:
+                g.fillRect(x, y, r, r);
+                break;
+            case 1:
+                g.fillOval(x, y, r, r);
+                break;
+            }
         }
     }
 
@@ -381,7 +389,9 @@ public class Feedback extends JPanel implements Runnable {
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawImage(display.filter(image, null), 0, 0, this);
+        synchronized (image) {
+            g.drawImage(display.filter(image, null), 0, 0, this);
+        }
         if (help) {
             Graphics2D g2d = (Graphics2D) g;
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
