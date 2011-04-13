@@ -187,13 +187,15 @@ public class Feedback extends JPanel implements Runnable {
                 }
             }
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_F1) {
+                if (e.getKeyCode() == KeyEvent.VK_F1
+                || e.getKeyChar() == 'h') {
                     help = true;
                     repaint();
                 }
             }
             public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_F1) {
+                if (e.getKeyCode() == KeyEvent.VK_F1
+                || e.getKeyChar() == 'h') {
                     help = false;
                     repaint();
                 }
