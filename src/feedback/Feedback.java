@@ -376,6 +376,9 @@ public class Feedback extends JPanel implements Runnable {
         super.paintComponent(g);
         g.drawImage(display.filter(image, null), 0, 0, this);
         if (help) {
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                 RenderingHints.VALUE_ANTIALIAS_ON);
             /* Print some help information. */
             FontMetrics fm = g.getFontMetrics();
             int h = fm.getAscent() + fm.getDescent();
