@@ -287,6 +287,7 @@ public class Feedback extends JPanel implements Runnable {
         FontMetrics fm = g.getFontMetrics();
         int w = fm.stringWidth(msg);
         g.drawString(msg, WIDTH / 2 - w / 2, HEIGHT - fm.getAscent() * 2);
+        repaint();
     }
 
     private void iterate() {
