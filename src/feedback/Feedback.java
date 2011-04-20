@@ -37,21 +37,26 @@ import javax.swing.JOptionPane;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+/* Simulates a video camera feedback look. The mouse draws onto the
+ * screen interactively, in addition to random disturbances, and the
+ * screen is distorted and fed back into itself over and over. */
 public class Feedback extends JPanel implements Runnable {
     private static final long serialVersionUID = 328407319480529736L;
 
+    /* Default settings */
     public static int WIDTH = 640;       /* Display width */
     public static int HEIGHT = 640;      /* Display height */
     public static int SPEED = 30;        /* Animation delay (ms) */
     public static double ANGLE = 2.5;    /* Rotate op (radians) */
     public static double SCALE = 0.99;   /* Resize op */
-    public static int BLUR = 1;          /* Guassian filter radius */
+    public static int BLUR = 1;          /* Gaussian filter radius */
     public static int INIT_DISTURB = 50; /* Initial number of disturbs */
-    public static int REINIT = 200;      /* Reinitize period (steps) */
+    public static int REINIT = 200;      /* Reinit period (steps) */
     public static int M_SIZE = 50;       /* Mouse pointer size */
     public static int COLOR_SPEED = 15;  /* Mouse color change speed */
     public static float ENHANCE = 1.5f;  /* Display color enhancement */
 
+    /* Image operators */
     private ArrayList<BufferedImageOp> ops;
     private RescaleOp display;   /* Display purpose only. */
 
@@ -74,6 +79,7 @@ public class Feedback extends JPanel implements Runnable {
     private double scale = SCALE;
     private volatile double speed = SPEED;
 
+    /* Create a frame and stick a Feedback panel in it. */
     public static void main(final String[] args) {
         frame = new JFrame("Feedback");
         Feedback feedback = new Feedback();
@@ -217,6 +223,7 @@ public class Feedback extends JPanel implements Runnable {
         initDisturb();
     }
 
+    /* Pause/play the simulation. */
     public synchronized void pause(Boolean pause) {
         if (pause != null && this.pause == pause)
             return;
@@ -226,12 +233,14 @@ public class Feedback extends JPanel implements Runnable {
         this.pause ^= true;
     }
 
+    /* Reset the image to blank. */
     public void clear() {
         synchronized (image) {
             image.getGraphics().clearRect(0, 0, WIDTH, HEIGHT);
         }
     }
 
+    /* Reinitialize the image operators using the current parameters. */
     private synchronized void createOps() {
         ArrayList<BufferedImageOp> ops = new ArrayList<BufferedImageOp>();
         AffineTransform affine = new AffineTransform();
@@ -241,6 +250,7 @@ public class Feedback extends JPanel implements Runnable {
         this.ops = ops;
     }
 
+    /* Draw the mouse circle cursor to the image. */
     private void mouse(boolean change) {
         synchronized (image) {
             Graphics2D g = image.createGraphics();
@@ -262,6 +272,7 @@ public class Feedback extends JPanel implements Runnable {
         repaint();
     }
 
+    /* Open a dialog to save the current image. */
     private void screenshot() {
         boolean state = pause;
         pause(true);
@@ -281,6 +292,7 @@ public class Feedback extends JPanel implements Runnable {
         pause(state);
     }
 
+    /* Save the current image to the given file. */
     private void save(File file) {
         try {
             ImageIO.write(display.filter(image, null), "PNG", file);
@@ -292,6 +304,7 @@ public class Feedback extends JPanel implements Runnable {
         }
     }
 
+    /* Display a message to the user via the image. */
     private void message(String msg) {
         synchronized (image) {
             Graphics2D g = image.createGraphics();
@@ -305,6 +318,7 @@ public class Feedback extends JPanel implements Runnable {
         repaint();
     }
 
+    /* Iterate the image by one step. */
     private void iterate() {
         if (!mouse)
             counter++;
@@ -356,6 +370,8 @@ public class Feedback extends JPanel implements Runnable {
         }
     }
 
+    /* Add a disturbance object to the image (circle or square of
+     * random color and size). */
     private void disturb() {
         synchronized (image) {
             Graphics g = image.getGraphics();
@@ -375,12 +391,14 @@ public class Feedback extends JPanel implements Runnable {
         }
     }
 
+    /* Create the initial disturbance. */
     private void initDisturb() {
         for (int i = 0; i < INIT_DISTURB; i++) {
             disturb();
         }
     }
 
+    /* The simulation thread. */
     public void run() {
         while (true) {
             try {
@@ -438,40 +456,5 @@ public class Feedback extends JPanel implements Runnable {
             g.drawString("Save a screenshot", x2, y);
             y += h;
         }
-    }
-
-    public static ConvolveOp getGaussianBlurFilter(int radius,
-            boolean horizontal) {
-        if (radius < 1) {
-            throw new IllegalArgumentException("Radius must be >= 1");
-        }
-
-        int size = radius * 2 + 1;
-        float[] data = new float[size];
-
-        float sigma = radius / 3.0f;
-        float twoSigmaSquare = 2.0f * sigma * sigma;
-        float sigmaRoot = (float) Math.sqrt(twoSigmaSquare * Math.PI);
-        float total = 0.0f;
-
-        for (int i = -radius; i <= radius; i++) {
-            float distance = i * i;
-            int index = i + radius;
-            data[index] = (float) Math.exp(-distance / twoSigmaSquare)
-                          / sigmaRoot;
-            total += data[index];
-        }
-
-        for (int i = 0; i < data.length; i++) {
-            data[i] /= total;
-        }
-
-        Kernel kernel = null;
-        if (horizontal) {
-            kernel = new Kernel(size, 1, data);
-        } else {
-            kernel = new Kernel(1, size, data);
-        }
-        return new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
     }
 }
