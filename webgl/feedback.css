@@ -1,0 +1,8 @@
+body {
+    background: black;
+    font-family: sans-serif;
+}
+
+canvas {
+    border: 1px solid gray;
+}
