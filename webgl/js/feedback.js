@@ -30,6 +30,9 @@ function Feedback(canvas) {
     this.textures = {
         state: igloo.texture().blank(canvas.width, canvas.height)
     };
+    this.framebuffers = {
+        save: igloo.framebuffer()
+    };
 
     var _this = this;
     $(canvas).on('mousemove', function(event) {
@@ -116,6 +119,34 @@ Feedback.prototype.fill = function(type, color, tx, ty, sx, sy, a) {
         .matrix('placement', Feedback.affine(tx, ty, sx, sy, a))
         .matrix('transform', this._affine)
         .draw(gl.TRIANGLE_STRIP, Igloo.QUAD2.length / 2);
+};
+
+Feedback.prototype.save = function() {
+    var gl = this.igloo.gl,
+        w = gl.canvas.width,
+        h = gl.canvas.height,
+        rgba = new Uint8Array(w * h * 4);
+
+    /* Gather image data from WebGL. */
+    this.framebuffers.save.attach(this.textures.state);
+    gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, rgba);
+    this.igloo.defaultFramebuffer.bind();
+
+    /* Dump onto a background canvas for toDataURL(). Unfortunately
+     * preserveDrawingBuffer doesn't allow me to fix the alpha, so I
+     * can't use it. Plus it interferes with drawing. */
+    var canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    var ctx = canvas.getContext('2d'),
+        image = ctx.getImageData(0, 0, w, h);
+    for (var i = 0; i < rgba.length; i += 4) {
+        image.data[i + 0] = rgba[i + 0];
+        image.data[i + 1] = rgba[i + 1];
+        image.data[i + 2] = rgba[i + 2];
+        image.data[i + 3] = 255;
+    }
+    ctx.putImageData(image, 0, 0);
+    return canvas.toDataURL();
 };
 
 Feedback.prototype.frame = function() {
