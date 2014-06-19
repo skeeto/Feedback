@@ -1,8 +1,11 @@
 body {
     background: black;
     font-family: sans-serif;
+    width: 642px;
+    margin: 10px auto;
 }
 
 canvas {
     border: 1px solid gray;
+    cursor: none;
 }
