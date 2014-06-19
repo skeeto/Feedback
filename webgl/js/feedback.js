@@ -18,6 +18,7 @@ function Feedback(canvas) {
     this.pointersize = 0.1;
     this.colorspeed = 0.01;
     this.pointercolor = Feedback.randomColor();
+    this.noise = true;
 
     this.buffers = {
         quad: igloo.array(Igloo.QUAD2)
@@ -31,8 +32,9 @@ function Feedback(canvas) {
         state: igloo.texture().blank(canvas.width, canvas.height)
     };
     this.framebuffers = {
-        save: igloo.framebuffer()
+        access: igloo.framebuffer(this.textures.state)
     };
+    this.igloo.defaultFramebuffer.bind();
 
     var _this = this;
     $(canvas).on('mousemove', function(event) {
@@ -100,7 +102,9 @@ Feedback.prototype.draw = function() {
                   this.pointer[0], this.pointer[1],
                   this.pointersize, this.pointersize, 0);
     }
-    if (RNG.$.random(this.pointer == null ? 3 : 5) === 0) this.disturb();
+    if (this.noise && RNG.$.random(this.pointer == null ? 3 : 5) === 0) {
+        this.disturb();
+    }
     Feedback.perturb(this.pointercolor, this.colorspeed);
     this.textures.state.copy(0, 0, w, h);
     return this;
@@ -134,7 +138,7 @@ Feedback.prototype.toDataURL = function() {
         rgba = new Uint8Array(w * h * 4);
 
     /* Gather image data from WebGL. */
-    this.framebuffers.save.attach(this.textures.state);
+    this.framebuffers.access.bind();
     gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, rgba);
     this.igloo.defaultFramebuffer.bind();
 
@@ -153,6 +157,15 @@ Feedback.prototype.toDataURL = function() {
     }
     ctx.putImageData(image, 0, 0);
     return canvas.toDataURL();
+};
+
+Feedback.prototype.clear = function() {
+    var gl = this.igloo.gl;
+    this.framebuffers.access.bind();
+    gl.clearColor(0, 0, 0, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    this.igloo.defaultFramebuffer.bind();
+    return this;
 };
 
 Feedback.prototype.frame = function() {
@@ -194,13 +207,14 @@ $(document).ready(function() {
     feedback.draw().start();
 
     $(document).on('keyup', function(event) {
-        console.log(event.which);
         switch (event.which) {
         case 82: /* r */
             break;
         case 78: /* n */
+            feedback.noise = !feedback.noise;
             break;
         case 67: /* c */
+            feedback.clear();
             break;
         case 71: /* g */
             break;
