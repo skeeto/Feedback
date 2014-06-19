@@ -1,3 +1,7 @@
+/**
+ * @param {HTMLCanvasElement} canvas
+ * @constructor
+ */
 function Feedback(canvas) {
     /* Init WebGL */
     var igloo = this.igloo = new Igloo(canvas);
@@ -57,8 +61,20 @@ function Feedback(canvas) {
     this.delay = 0;
 }
 
+/**
+ * @type {Float32Array}
+ * @constant
+ */
 Feedback.IDENTITY3 = mat3.create();
 
+/**
+ * @param {number} tx translation x
+ * @param {number} ty translation y
+ * @param {number} sx scale x
+ * @param {number} sy scale y
+ * @param {number} a rotation angle (radians)
+ * @returns {Float32Array} a mat3 affine transformation
+ */
 Feedback.affine = function(tx, ty, sx, sy, a) {
     var m  = mat3.create();
     mat3.translate(m, m, [tx, ty]);
@@ -67,31 +83,55 @@ Feedback.affine = function(tx, ty, sx, sy, a) {
     return m;
 };
 
+/**
+ * @returns {Float32Array}
+ */
 Feedback.randomColor = function() {
     var r = RNG.$;
     return [r.uniform(), r.uniform(), r.uniform(), r.uniform() * 0.5 + 0.5];
 };
 
+/**
+ * Slightly perturb a color into a different color.
+ * @param {Float32Array} color
+ * @param {number} rate
+ * @returns {Float32Array} the modified color
+ */
 Feedback.perturb = function(color, rate) {
     for (var i = 0; i < 4; i++) {
         color[i] += RNG.$.normal() * rate;
         color[i] = Math.min(Math.max(color[i], 0), 1);
     }
     color[3] = Math.max(color[3], 0.5);
+    return color;
 };
 
+/**
+ * Update the affine transformation.
+ * @returns {Feedback} this
+ */
 Feedback.prototype.setAffine = function() {
     var s = 1 / this._gravity;
     this._affine = Feedback.affine(0, 0, s, s, this._rotate);
     return this;
 };
 
+/**
+ * Adjusts the feedback transformation.
+ * @param {string} value one of gravity or rotate
+ * @param {number} factor to be multiplied against the value
+ * @returns {Feedback} this
+ */
 Feedback.prototype.adjust = function(value, factor) {
     this['_' + value] *= factor;
     this.setAffine();
     return this;
 };
 
+/**
+ * Step the feedback simulation and draw it to the screen.
+ * @returns {Feedback} this
+ */
 Feedback.prototype.draw = function() {
     var gl = this.igloo.gl, w = gl.canvas.width, h = gl.canvas.height;
     this.textures.state.bind(0);
@@ -116,6 +156,10 @@ Feedback.prototype.draw = function() {
     return this;
 };
 
+/**
+ * Draw a single random shape on the display.
+ * @returns {Feedback} this
+ */
 Feedback.prototype.disturb = function() {
     var type = RNG.$.uniform() < 0.5 ? 'square' : 'circle',
         color = Feedback.randomColor(),
@@ -125,8 +169,20 @@ Feedback.prototype.disturb = function() {
         a = RNG.$.uniform() * Math.PI * 2;
     color[3] = 1;
     this.fill(type, color, x, y, s, s, a);
+    return this;
 };
 
+/**
+ * Draw a specific shape to the display.
+ * @param {string} type one of circle or square
+ * @param {Float32Array} color
+ * @param {number} tx translation x
+ * @param {number} ty translation y
+ * @param {number} sx scale x
+ * @param {number} sx scale y
+ * @param {number} a rotation angle (radians)
+ * @returns {Feedback} this
+ */
 Feedback.prototype.fill = function(type, color, tx, ty, sx, sy, a) {
     var gl = this.igloo.gl;
     this.programs[type].use()
@@ -135,8 +191,13 @@ Feedback.prototype.fill = function(type, color, tx, ty, sx, sy, a) {
         .matrix('placement', Feedback.affine(tx, ty, sx, sy, a))
         .matrix('transform', this._affine)
         .draw(gl.TRIANGLE_STRIP, Igloo.QUAD2.length / 2);
+    return this;
 };
 
+/**
+ * Get a data URL for the current display.
+ * @returns {string}
+ */
 Feedback.prototype.toDataURL = function() {
     var gl = this.igloo.gl,
         w = gl.canvas.width,
@@ -165,6 +226,10 @@ Feedback.prototype.toDataURL = function() {
     return canvas.toDataURL();
 };
 
+/**
+ * Clear all colors from the display.
+ * @returns {Feedback} this
+ */
 Feedback.prototype.clear = function() {
     var gl = this.igloo.gl;
     this.framebuffers.access.bind();
@@ -174,6 +239,10 @@ Feedback.prototype.clear = function() {
     return this;
 };
 
+/**
+ * Handle a single animation frame and register for the next one.
+ * @returns {Feedback} this
+ */
 Feedback.prototype.frame = function() {
     var _this = this;
     window.requestAnimationFrame(function() {
@@ -185,6 +254,10 @@ Feedback.prototype.frame = function() {
     });
 };
 
+/**
+ * Begin animating.
+ * @returns {Feedback} this
+ */
 Feedback.prototype.start = function() {
     if (this.running == false) {
         this.running = true;
@@ -193,11 +266,19 @@ Feedback.prototype.start = function() {
     return this;
 };
 
+/**
+ * Stop animating.
+ * @returns {Feedback} this
+ */
 Feedback.prototype.stop = function() {
     this.running = false;
     return this;
 };
 
+/**
+ * Toggle animation.
+ * @returns {Feedback} this
+ */
 Feedback.prototype.toggle = function() {
     if (this.running) {
         this.stop();
@@ -211,7 +292,6 @@ var feedback = null;
 $(document).ready(function() {
     feedback = new Feedback($('#display')[0]);
     feedback.draw().start();
-
     $(document).on('keyup', function(event) {
         switch (event.which) {
         case 82: /* r */
