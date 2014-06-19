@@ -15,7 +15,7 @@ function Feedback(canvas) {
 
     /* User poking */
     this.pointer = 0.1;
-    this.colorspeed = 0.06;
+    this.colorspeed = 0.01;
     this.mousecolor = Feedback.randomColor();
     this.mouse = [0, 0];
 
@@ -44,7 +44,9 @@ function Feedback(canvas) {
         ];
     });
 
-    this.timer = null;
+    this.running = false;
+    this.last = 0;
+    this.delay = 0;
 }
 
 Feedback.IDENTITY3 = mat3.create();
@@ -114,19 +116,27 @@ Feedback.prototype.fill = function(type, color, tx, ty, sx, sy, a) {
         .draw(gl.TRIANGLE_STRIP, Igloo.QUAD2.length / 2);
 };
 
-Feedback.prototype.start = function() {
+Feedback.prototype.frame = function() {
     var _this = this;
-    if (this.timer == null) {
-        this.timer = window.setInterval(function() {
+    window.requestAnimationFrame(function() {
+        if (Date.now() - _this.last > _this.delay) {
             _this.draw();
-        }, 150);
+            _this.last = Date.now();
+        }
+        if (_this.running) _this.frame();
+    });
+};
+
+Feedback.prototype.start = function() {
+    if (this.running == false) {
+        this.running = true;
+        this.frame();
     }
     return this;
 };
 
 Feedback.prototype.stop = function() {
-    window.clearInterval(this.timer);
-    this.timer = null;
+    this.running = false;
     return this;
 };
 
