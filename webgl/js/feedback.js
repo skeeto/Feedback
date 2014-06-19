@@ -85,6 +85,8 @@ Feedback.prototype.draw = function() {
         .attrib('quad', this.buffers.quad, 2)
         .uniformi('state', 0)
         .matrix('placement', Feedback.IDENTITY3)
+        .matrix('transform', Feedback.IDENTITY3)
+        .draw(gl.TRIANGLE_STRIP, Igloo.QUAD2.length / 2)
         .matrix('transform', this._affine)
         .draw(gl.TRIANGLE_STRIP, Igloo.QUAD2.length / 2);
     this.fill('circle', this.mousecolor, this.mouse[0], this.mouse[1],
