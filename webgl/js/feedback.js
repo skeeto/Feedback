@@ -8,7 +8,7 @@ function Feedback(canvas) {
     gl.blendFunc(gl.SRC_ALPHA, gl.SRC_ALPHA);
 
     /* Defaults */
-    this._scale = 0.98;
+    this._gravity = 0.98;
     this._rotate = 2.5;
     this._affine = null;
     this.setAffine();
@@ -81,8 +81,14 @@ Feedback.perturb = function(color, rate) {
 };
 
 Feedback.prototype.setAffine = function() {
-    var s = 1 / this._scale;
+    var s = 1 / this._gravity;
     this._affine = Feedback.affine(0, 0, s, s, this._rotate);
+    return this;
+};
+
+Feedback.prototype.adjust = function(value, factor) {
+    this['_' + value] *= factor;
+    this.setAffine();
     return this;
 };
 
@@ -209,14 +215,16 @@ $(document).ready(function() {
     $(document).on('keyup', function(event) {
         switch (event.which) {
         case 82: /* r */
+            feedback.adjust('rotate', event.shiftKey ? 1.01 : 0.99099);
+            break;
+        case 71: /* g */
+            feedback.adjust('gravity', event.shiftKey ? 1.01 : 0.99099);
             break;
         case 78: /* n */
             feedback.noise = !feedback.noise;
             break;
         case 67: /* c */
             feedback.clear();
-            break;
-        case 71: /* g */
             break;
         case 32: /* [space] */
             feedback.toggle();
