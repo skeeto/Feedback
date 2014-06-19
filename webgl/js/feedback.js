@@ -122,7 +122,7 @@ Feedback.prototype.fill = function(type, color, tx, ty, sx, sy, a) {
 Feedback.prototype.frame = function() {
     var _this = this;
     window.requestAnimationFrame(function() {
-        if (Date.now() - _this.last > _this.delay) {
+        if (_this.delay === 0 || Date.now() - _this.last > _this.delay) {
             _this.draw();
             _this.last = Date.now();
         }
