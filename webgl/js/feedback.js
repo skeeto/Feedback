@@ -230,8 +230,8 @@ $(document).ready(function() {
             feedback.toggle();
             break;
         case 83: /* s */
-             window.location.href =
-                feedback.toDataURL().replace("image/png", "image/octet-stream");
+            var url = feedback.toDataURL();
+            Download.show(url);
             break;
         };
     });
@@ -241,3 +241,22 @@ $(document).ready(function() {
 $(window).on('keydown', function(event) {
     return !(event.keyCode === 32);
 });
+
+var Download = {
+    show: function(url) {
+        var $download = $('.download')
+                .css('display', 'block')
+                .animate({height: '110px'}, 500)
+                .on('click', function() {
+                    Download.hide();
+                });
+        $download.find('a').attr('href', url);
+        $download.find('img').attr('src', url);
+    },
+    hide: function() {
+        var $download = $('.download')
+                .animate({height: '0px'}, 500, function() {
+                   $download.css('display', 'none');
+                });
+    }
+};
