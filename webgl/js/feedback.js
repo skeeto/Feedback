@@ -8,14 +8,14 @@ function Feedback(canvas) {
 
     /* Defaults */
     this._scale = 0.98;
-    this._rotate = 2.5;
+    this._rotate = 0;
     this._affine = null;
     this.setAffine();
 
     /* User poking */
     this.pointer = 0.1;
     this.colorspeed = 0.01;
-    this.mousecolor = Feedback.randomColor();
+    this.mousecolor = [1, 0.5, 0, 0.4];
     this.mouse = [0, 0];
 
     this.buffers = {
@@ -85,13 +85,15 @@ Feedback.prototype.draw = function() {
         .attrib('quad', this.buffers.quad, 2)
         .uniformi('state', 0)
         .matrix('placement', Feedback.IDENTITY3)
+        .matrix('transform', Feedback.IDENTITY3)
+        .draw(gl.TRIANGLE_STRIP, Igloo.QUAD2.length / 2)
         .matrix('transform', this._affine)
         .draw(gl.TRIANGLE_STRIP, Igloo.QUAD2.length / 2);
     this.fill('circle', this.mousecolor, this.mouse[0], this.mouse[1],
               this.pointer, this.pointer, 0);
     gl.blendFunc(gl.ONE, gl.ONE);
-    if (RNG.$.random(5) === 0) this.disturb();
-    Feedback.perturb(this.mousecolor, this.colorspeed);
+    //if (RNG.$.random(5) === 0) this.disturb();
+    //Feedback.perturb(this.mousecolor, this.colorspeed);
     this.textures.state.copy(0, 0, w, h);
     return this;
 };

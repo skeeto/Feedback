@@ -12,6 +12,6 @@ void main() {
     if (p.s < 0.0 || p.s > 1.0 || p.t < 0.0 || p.t > 1.0) {
         gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
     } else {
-        gl_FragColor = vec4(texture2D(state, p).rgb, 1.0);
+        gl_FragColor = vec4(texture2D(state, p).rgb, 0.64);
     }
 }
