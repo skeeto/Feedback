@@ -1,6 +1,6 @@
 function Feedback(canvas) {
     /* Init WebGL */
-    var igloo = this.igloo = new Igloo(canvas);
+    var igloo = this.igloo = new Igloo(canvas, {preserveDrawingBuffer: true});
     var gl = igloo.gl;
     gl.disable(gl.DEPTH_TEST);
     gl.enable(gl.BLEND);
@@ -85,13 +85,10 @@ Feedback.prototype.draw = function() {
         .attrib('quad', this.buffers.quad, 2)
         .uniformi('state', 0)
         .matrix('placement', Feedback.IDENTITY3)
-        .matrix('transform', Feedback.IDENTITY3)
-        .draw(gl.TRIANGLE_STRIP, Igloo.QUAD2.length / 2)
         .matrix('transform', this._affine)
         .draw(gl.TRIANGLE_STRIP, Igloo.QUAD2.length / 2);
     this.fill('circle', this.mousecolor, this.mouse[0], this.mouse[1],
               this.pointer, this.pointer, 0);
-    gl.blendFunc(gl.ONE, gl.ONE);
     if (RNG.$.random(5) === 0) this.disturb();
     Feedback.perturb(this.mousecolor, this.colorspeed);
     this.textures.state.copy(0, 0, w, h);
@@ -105,7 +102,7 @@ Feedback.prototype.disturb = function() {
         y = RNG.$.uniform() * 2 - 1,
         s = RNG.$.normal() * 0.16,
         a = RNG.$.uniform() * Math.PI * 2;
-    color[3] *= 0.25;
+    color[3] = 1;
     this.fill(type, color, x, y, s, s, a);
 };
 
