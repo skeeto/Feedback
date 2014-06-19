@@ -127,7 +127,7 @@ Feedback.prototype.fill = function(type, color, tx, ty, sx, sy, a) {
         .draw(gl.TRIANGLE_STRIP, Igloo.QUAD2.length / 2);
 };
 
-Feedback.prototype.save = function() {
+Feedback.prototype.toDataURL = function() {
     var gl = this.igloo.gl,
         w = gl.canvas.width,
         h = gl.canvas.height,
@@ -179,8 +179,43 @@ Feedback.prototype.stop = function() {
     return this;
 };
 
+Feedback.prototype.toggle = function() {
+    if (this.running) {
+        this.stop();
+    } else {
+        this.start();
+    }
+    return this;
+};
+
 var feedback = null;
 $(document).ready(function() {
     feedback = new Feedback($('#display')[0]);
     feedback.draw().start();
+
+    $(document).on('keyup', function(event) {
+        console.log(event.which);
+        switch (event.which) {
+        case 82: /* r */
+            break;
+        case 78: /* n */
+            break;
+        case 67: /* c */
+            break;
+        case 71: /* g */
+            break;
+        case 32: /* [space] */
+            feedback.toggle();
+            break;
+        case 83: /* s */
+             window.location.href =
+                feedback.toDataURL().replace("image/png", "image/octet-stream");
+            break;
+        };
+    });
+});
+
+/* Don't scroll on spacebar. */
+$(window).on('keydown', function(event) {
+    return !(event.keyCode === 32);
 });

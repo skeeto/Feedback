@@ -3,9 +3,45 @@ body {
     font-family: sans-serif;
     width: 642px;
     margin: 10px auto;
+    color: salmon;
+    text-align: justify;
+}
+
+h1 {
+    padding: 0;
+    margin: 0;
+    text-align: center;
+}
+
+h2 {
+    padding: 0;
+    margin: 10px 0 0 0;
+    text-align: center;
 }
 
 canvas {
     border: 1px solid gray;
     cursor: none;
+}
+
+ul li span {
+    display: inline-block;
+}
+
+ul {
+    list-style-type: none;
+}
+
+ul li .input {
+    text-align: right;
+    width: 250px;
+    font-weight: bold;
+    padding: 0 5px 0 0;
+}
+
+ul li .result {
+    text-align: left;
+    width: 250px;
+    font-style: italic;
+    padding: 0 0 0 5px;
 }

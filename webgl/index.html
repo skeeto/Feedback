@@ -11,6 +11,50 @@
     <script src="js/feedback.js"></script>
   </head>
   <body>
+    <h1>Feedback Loop Kaleidoscope Effect</h1>
     <canvas id="display" width="640" height="640"></canvas>
+    <ul>
+      <li>
+        <span class="input">[SPACE]</span>
+        <span class="result">toggle pause/play</span>
+      </li>
+      <li>
+        <span class="input">r/R</span>
+        <span class="result">increase/decrease rotation</span>
+      </li>
+      <li>
+        <span class="input">g/G</span>
+        <span class="result">increase/decrease gravity</span>
+      </li>
+      <li>
+        <span class="input">c</span>
+        <span class="result">clear the screen</span>
+      </li>
+      <li>
+        <span class="input">n</span>
+        <span class="result">toggle automatic noise</span>
+      </li>
+      <li>
+        <span class="input">s</span>
+        <span class="result">save a screenshot</span>
+      </li>
+      <h2>What's going on here?</h2>
+      <p>
+        Imagine the effect of pointing a camera at its own display.
+        The image on the display screen goes back into the camera,
+        undergoes effects of being captured the camera -- including
+        time delay -- and is drawn back out to the display. This
+        process continues rapidly and endlessly, with the image
+        getting smaller and more distorted at each step. Emergent,
+        fractal behavior occurs near the center of the display as the
+        loops reacts to themselves.
+      </p>
+      <p>
+        This demo simulates that effect by feeding the display image
+        back into itself each time it is drawn to the screen. Watch
+        the movements of your mouse cursor spiral towards the center
+        of the image mimicking your movements.
+      </p>
+    </ul>
   </body>
 </html>
