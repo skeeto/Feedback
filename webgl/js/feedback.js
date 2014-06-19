@@ -4,7 +4,6 @@ function Feedback(canvas) {
     var gl = igloo.gl;
     gl.disable(gl.DEPTH_TEST);
     gl.enable(gl.BLEND);
-    gl.blendFunc(gl.ONE, gl.ONE);
     gl.blendEquation(gl.FUNC_ADD);
 
     /* Defaults */
@@ -80,6 +79,7 @@ Feedback.prototype.setAffine = function() {
 
 Feedback.prototype.draw = function() {
     var gl = this.igloo.gl, w = gl.canvas.width, h = gl.canvas.height;
+    gl.blendFunc(gl.SRC_ALPHA, gl.SRC_ALPHA);
     this.textures.state.bind(0);
     this.programs.step.use()
         .attrib('quad', this.buffers.quad, 2)
@@ -89,8 +89,9 @@ Feedback.prototype.draw = function() {
         .draw(gl.TRIANGLE_STRIP, Igloo.QUAD2.length / 2);
     this.fill('circle', this.mousecolor, this.mouse[0], this.mouse[1],
               this.pointer, this.pointer, 0);
-    Feedback.perturb(this.mousecolor, this.colorspeed);
+    gl.blendFunc(gl.ONE, gl.ONE);
     if (RNG.$.random(5) === 0) this.disturb();
+    Feedback.perturb(this.mousecolor, this.colorspeed);
     this.textures.state.copy(0, 0, w, h);
     return this;
 };
