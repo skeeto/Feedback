@@ -14,10 +14,10 @@ function Feedback(canvas) {
     this.setAffine();
 
     /* User poking */
-    this.pointer = 0.1;
+    this.pointer = null;
+    this.pointersize = 0.1;
     this.colorspeed = 0.01;
-    this.mousecolor = Feedback.randomColor();
-    this.mouse = [0, 0];
+    this.pointercolor = Feedback.randomColor();
 
     this.buffers = {
         quad: igloo.array(Igloo.QUAD2)
@@ -41,10 +41,13 @@ function Feedback(canvas) {
             border = 1,
             x = event.pageX - offset.left - border,
             y = $target.height() - (event.pageY - offset.top - border);
-        _this.mouse = [
+        _this.pointer = [
             x / $target.width() * 2 - 1,
             y / $target.height() * 2 - 1
         ];
+    });
+    $(canvas).on('mouseout', function() {
+        _this.pointer = null;
     });
 
     this.running = false;
@@ -92,10 +95,13 @@ Feedback.prototype.draw = function() {
         .draw(gl.TRIANGLE_STRIP, Igloo.QUAD2.length / 2)
         .matrix('transform', this._affine)
         .draw(gl.TRIANGLE_STRIP, Igloo.QUAD2.length / 2);
-    this.fill('circle', this.mousecolor, this.mouse[0], this.mouse[1],
-              this.pointer, this.pointer, 0);
-    if (RNG.$.random(5) === 0) this.disturb();
-    Feedback.perturb(this.mousecolor, this.colorspeed);
+    if (this.pointer != null) {
+        this.fill('circle', this.pointercolor,
+                  this.pointer[0], this.pointer[1],
+                  this.pointersize, this.pointersize, 0);
+    }
+    if (RNG.$.random(this.pointer == null ? 3 : 5) === 0) this.disturb();
+    Feedback.perturb(this.pointercolor, this.colorspeed);
     this.textures.state.copy(0, 0, w, h);
     return this;
 };
