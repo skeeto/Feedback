@@ -273,6 +273,7 @@ Feedback.prototype.frame = function() {
  */
 Feedback.prototype.start = function() {
     if (this.running == false) {
+        $(this.igloo.canvas).css('cursor', 'none');
         this.running = true;
         this.frame();
     }
@@ -285,6 +286,7 @@ Feedback.prototype.start = function() {
  */
 Feedback.prototype.stop = function() {
     this.running = false;
+    $(this.igloo.canvas).css('cursor', '');
     return this;
 };
 

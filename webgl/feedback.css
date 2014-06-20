@@ -25,7 +25,7 @@ h2 {
 
 .main canvas {
     border: 1px solid gray;
-    cursor: none;
+    cursor: crosshair;
     display: block;
 }
 
