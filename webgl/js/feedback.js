@@ -18,10 +18,15 @@ function Feedback(canvas) {
     this.setAffine();
 
     /* User poking */
-    this.pointer = null;
-    this.pointersize = 0.1;
-    this.colorspeed = 0.01;
-    this.pointercolor = Feedback.randomColor();
+    this.pointer = {
+        position: null,
+        size: 0.1,
+        angle: 0,
+        spin: 0.05,
+        type: 0,
+        color: Feedback.randomColor(),
+        colorspeed: 0.01
+    };
     this.noise = true;
 
     this.buffers = {
@@ -47,13 +52,13 @@ function Feedback(canvas) {
             border = 1,
             x = event.pageX - offset.left - border,
             y = $target.height() - (event.pageY - offset.top - border);
-        _this.pointer = [
+        _this.pointer.position = [
             x / $target.width() * 2 - 1,
             y / $target.height() * 2 - 1
         ];
     });
     $(canvas).on('mouseout', function() {
-        _this.pointer = null;
+        _this.pointer.position = null;
     });
 
     this.running = false;
@@ -66,6 +71,12 @@ function Feedback(canvas) {
  * @constant
  */
 Feedback.IDENTITY3 = mat3.create();
+
+/**
+ * @type {Array}
+ * @constant
+ */
+Feedback.SHAPES = ['circle', 'square'];
 
 /**
  * @param {number} tx translation x
@@ -143,15 +154,17 @@ Feedback.prototype.draw = function() {
         .draw(gl.TRIANGLE_STRIP, Igloo.QUAD2.length / 2)
         .matrix('transform', this._affine)
         .draw(gl.TRIANGLE_STRIP, Igloo.QUAD2.length / 2);
-    if (this.pointer != null) {
-        this.fill('circle', this.pointercolor,
-                  this.pointer[0], this.pointer[1],
-                  this.pointersize, this.pointersize, 0);
+    if (this.pointer.position != null) {
+        console.log(this.pointer);
+        this.fill(Feedback.SHAPES[this.pointer.type], this.pointer.color,
+                  this.pointer.position[0], this.pointer.position[1],
+                  this.pointer.size, this.pointer.size, this.pointer.angle);
     }
     if (this.noise && RNG.$.random(this.pointer == null ? 3 : 5) === 0) {
         this.disturb();
     }
-    Feedback.perturb(this.pointercolor, this.colorspeed);
+    Feedback.perturb(this.pointer.color, this.pointer.colorspeed);
+    this.pointer.angle += this.pointer.spin;
     this.textures.state.copy(0, 0, w, h);
     return this;
 };
@@ -287,65 +300,3 @@ Feedback.prototype.toggle = function() {
     }
     return this;
 };
-
-var feedback = null;
-$(document).ready(function() {
-    feedback = new Feedback($('#display')[0]);
-    feedback.draw().start();
-    $(document).on('keyup', function(event) {
-        switch (event.which) {
-        case 82: /* r */
-            feedback.adjust('rotate', event.shiftKey ? 1.01 : 0.99099);
-            break;
-        case 71: /* g */
-            feedback.adjust('gravity', event.shiftKey ? 1.01 : 0.99099);
-            break;
-        case 78: /* n */
-            feedback.noise = !feedback.noise;
-            break;
-        case 67: /* c */
-            feedback.clear();
-            break;
-        case 32: /* [space] */
-            feedback.toggle();
-            break;
-        case 83: /* s */
-            var url = feedback.toDataURL();
-            Download.show(url);
-            break;
-        };
-    });
-});
-
-/* Don't scroll on spacebar. */
-$(window).on('keydown', function(event) {
-    return !(event.keyCode === 32);
-});
-
-var Download = {
-    show: function(url) {
-        var $download = $('.download')
-                .css('display', 'block')
-                .animate({height: '110px'}, 500)
-                .on('click', function() {
-                    Download.hide();
-                });
-        $download.find('a').attr('href', url);
-        $download.find('img').attr('src', url);
-    },
-    hide: function() {
-        var $download = $('.download')
-                .animate({height: '0px'}, 500, function() {
-                   $download.css('display', 'none');
-                });
-    }
-};
-
-if (window.requestAnimationFrame == null) {
-    window.requestAnimationFrame =
-        window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame    ||
-        function(callback){
-            window.setTimeout(callback, 1000 / 60);
-        };
-}
